@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Frog | Soluciones Digitales</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        deep: '#10212D', // Fondo Profundo
+                        accent1: '#275180', // Azul Medio (Títulos)
+                        accent2: '#57BA9E', // Verde Azulado (CTAs)
+                        card: '#162A39', // Fondo de tarjetas
+                        cardBorder: 'rgba(87, 186, 158, 0.2)' // Borde sutil verde azulado
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Segoe UI', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+    <style>
+        body {
+            background-color: #10212D;
+            color: #F8F9FA;
+            overflow-x: hidden;
+        }
+
+        /* NUEVOS ESTILOS PARA EL CANVAS CONTINUO */
+        #particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Asegurar que el contenido de las secciones esté por encima del canvas */
+        .hero-content,
+        .pilares-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Ocultar elementos iniciales para Anime.js */
+        .anime-item,
+        .anime-hero-text>*,
+        .anime-hero-img,
+        .anime-nav>* {
+            opacity: 0;
+        }
+
+        /* --- SOLUCIÓN PARA LA IMAGEN DEL MODAL --- */
+        #modal-img-main img {
+            object-position: top !important;
+        }
+    </style>
+</head>
+
+<body class="antialiased font-sans relative">
+
+    <canvas id="particle-canvas"></canvas>
+
+    <header
+        class="fixed top-0 w-full z-50 bg-[#10212D]/90 backdrop-blur-md border-b border-gray-800/50 transition-all duration-300 anime-nav">
+        <div class="flex justify-between items-center px-8 py-5 max-w-7xl mx-auto w-full relative">
+
+            <div class="flex items-center gap-2 relative z-50">
+                <span class="text-white font-bold text-xl tracking-wide flex items-center gap-3">
+                    <img src="img/isotipo-the-frog.svg" alt="The Frog Logo" class="w-[17px] h-[17px]">
+                    TheFrog
+                </span>
+            </div>
+
+            <button id="menu-toggle" class="md:hidden text-white focus:outline-none relative z-50">
+                <svg id="icon-menu" class="w-8 h-8 block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
+                    </path>
+                </svg>
+                <svg id="icon-close" class="w-8 h-8 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+
+            <nav id="mobile-menu"
+                class="fixed inset-0 h-screen w-full bg-[#10212D] flex flex-col items-center justify-center gap-8 text-2xl text-gray-300 z-40 transform -translate-y-full transition-transform duration-300 ease-in-out md:relative md:h-auto md:w-auto md:bg-transparent md:flex-row md:justify-end md:text-sm md:translate-y-0">
+                <a href="#pilares" class="hover:text-accent2 transition" data-i18n="nav_soluciones">Soluciones</a>
+                <a href="#portafolio" class="hover:text-accent2 transition" data-i18n="nav_proyectos">Proyectos</a>
+                <a href="#planes" class="hover:text-accent2 transition" data-i18n="nav_planes">Planes</a>
+                <a href="#faq" class="hover:text-accent2 transition" data-i18n="nav_faq">FAQ</a>
+
+                <div
+                    class="flex md:hidden items-center gap-2 mt-4 bg-[#162A39] border border-gray-700/50 rounded-full p-1">
+                    <button
+                        class="btn-lang px-4 py-2 text-sm font-bold text-gray-400 hover:text-white transition flex items-center gap-2">
+                        <span class="lang-text">EN</span>
+                    </button>
+                    <div class="w-px h-5 bg-gray-600"></div>
+                    <button
+                        class="btn-currency px-4 py-2 text-sm font-bold text-gray-400 hover:text-white transition flex items-center gap-2">
+                        <span class="currency-text">USD</span>
+                    </button>
+                </div>
+
+                <a href="https://wa.me/51913330912?text=Hola%20quisiera%20m%C3%A1s%20informaci%C3%B3n%20sobre%20sus%20servicios"
+                    target="_blank"
+                    class="md:hidden bg-accent2 text-deep font-bold px-8 py-3 rounded-full hover:shadow-[0_0_15px_rgba(87,186,158,0.6)] transition mt-4"
+                    data-i18n="nav_wa">WhatsApp</a>
+            </nav>
+
+            <div class="hidden md:flex items-center gap-5 relative z-50">
+
+                <div class="flex items-center bg-[#162A39] rounded-full border border-gray-700/50 p-1 shadow-inner">
+                    <button
+                        class="btn-lang text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-full px-3 py-1.5 text-xs font-bold tracking-wide transition flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9">
+                            </path>
+                        </svg>
+                        <span class="lang-text">EN</span>
+                    </button>
+                    <div class="w-px h-4 bg-gray-700 mx-1"></div>
+                    <button
+                        class="btn-currency text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-full px-3 py-1.5 text-xs font-bold tracking-wide transition flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                            </path>
+                        </svg>
+                        <span class="currency-text">USD</span>
+                    </button>
+                </div>
+
+                <a href="https://wa.me/51913330912?text=Hola%20quisiera%20m%C3%A1s%20informaci%C3%B3n%20sobre%20sus%20servicios"
+                    target="_blank"
+                    class="bg-accent2 text-deep font-bold px-6 py-2.5 text-sm rounded-full hover:shadow-[0_0_15px_rgba(87,186,158,0.6)] transition hover:-translate-y-0.5"
+                    data-i18n="nav_wa">WhatsApp</a>
+            </div>
+
+        </div>
+    </header>
+
+    <section id="hero-section" class="relative min-h-screen flex items-center pt-24 pb-12">
+        <div class="hero-content max-w-7xl mx-auto px-8 w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div class="anime-hero-text">
+                <p class="text-accent2 text-sm font-semibold tracking-widest uppercase mb-4 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-accent2 rounded-full"></span> <span data-i18n="hero_tag">Impulsa tu
+                        evolución digital</span>
+                </p>
+                <h1 class="text-5xl md:text-7xl font-bold text-white leading-tight mb-6">
+                    THE FROG: <br>
+                    <span class="text-accent2" data-i18n="hero_title">Especialistas en<br>Soluciones Digitales.</span>
+                </h1>
+                <p class="text-gray-300 text-lg mb-8 max-w-md" data-i18n="hero_desc">
+                    Transformamos ideas en resultados. Conectamos tu marca con el mundo a través de tres pilares
+                    fundamentales: Diseño, Tecnología y Comunicación.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="#planes"
+                        class="bg-accent2 text-deep font-bold px-8 py-3 rounded-full hover:bg-teal-400 transition hover:-translate-y-1 inline-block"
+                        data-i18n="hero_btn_proyectos">Proyectos</a>
+                    <a href="https://wa.me/51913330912?text=Hola%20quisiera%20m%C3%A1s%20informaci%C3%B3n%20sobre%20sus%20servicios"
+                        target="_blank"
+                        class="border border-gray-500 text-white font-semibold px-8 py-3 rounded-full hover:border-accent2 transition hover:-translate-y-1 inline-block"
+                        data-i18n="hero_btn_hablemos">Hablemos
+                        por WhatsApp</a>
+                </div>
+            </div>
+            <div class="flex justify-center items-center">
+                <img src="img/isotipo-the-frog.svg" alt="The Frog Hero"
+                    class="w-full max-w-md md:max-w-lg anime-hero-img drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)]">
+            </div>
+        </div>
+    </section>
+
+    <section id="pilares" class="relative max-w-7xl mx-auto px-8 py-20 scroll-trigger">
+        <div class="pilares-content relative z-10">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 anime-item" data-i18n="pil_title">Soluciones Digitales 360°
+            </h2>
+            <p class="text-gray-400 max-w-2xl mb-12 anime-item" data-i18n="pil_desc">Ofrecemos un ecosistema completo
+                para que tu negocio
+                crezca en el entorno digital.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div
+                    class="bg-card/90 backdrop-blur-sm border border-cardBorder p-6 rounded-xl transition duration-300 anime-item hover:border-accent2 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(87,186,158,0.1)]">
+                    <div class="w-12 h-12 bg-accent2/10 rounded-xl flex items-center justify-center mb-5">
+                        <img src="img/comunicacion-icono-the-frog.svg" alt="Comunicación" class="w-[25px] h-[25px]">
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2" data-i18n="pil_com_t">Comunicación</h3>
+                    <p class="text-sm text-gray-400" data-i18n="pil_com_d">Conectamos marcas con personas mediante
+                        estrategias de marketing
+                        360° y gestión de comunidades.</p>
+                </div>
+                <div
+                    class="bg-card/90 backdrop-blur-sm border border-cardBorder p-6 rounded-xl transition duration-300 anime-item hover:border-accent2 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(87,186,158,0.1)]">
+                    <div class="w-12 h-12 bg-accent2/10 rounded-xl flex items-center justify-center mb-5">
+                        <img src="img/diseno-icono-the-frog.svg" alt="Diseño" class="w-[25px] h-[25px]">
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2" data-i18n="pil_dis_t">Diseño</h3>
+                    <p class="text-sm text-gray-400" data-i18n="pil_dis_d">Branding, diseño UX/UI e interfaces digitales
+                        intuitivas y
+                        experiencias visuales memorables.</p>
+                </div>
+                <div
+                    class="bg-card/90 backdrop-blur-sm border border-cardBorder p-6 rounded-xl transition duration-300 anime-item hover:border-accent2 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(87,186,158,0.1)]">
+                    <div class="w-12 h-12 bg-accent2/10 rounded-xl flex items-center justify-center mb-5">
+                        <img src="img/tecnologia-icono-the-frog.svg" alt="Tecnología" class="w-[25px] h-[25px]">
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2" data-i18n="pil_tec_t">Tecnología</h3>
+                    <p class="text-sm text-gray-400" data-i18n="pil_tec_d">Transformamos ideas en código sólido:
+                        desarrollamos software, apps
+                        y plataformas web de alto rendimiento.</p>
+                </div>
+                <div
+                    class="bg-card/90 backdrop-blur-sm border border-cardBorder p-6 rounded-xl transition duration-300 anime-item hover:border-accent2 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(87,186,158,0.1)]">
+                    <div class="w-12 h-12 bg-accent2/10 rounded-xl flex items-center justify-center mb-5">
+                        <img src="img/produccion-audiovisual-icono-the-frog.svg" alt="Producción Audiovisual"
+                            class="w-[25px] h-[25px]">
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2" data-i18n="pil_aud_t">Audiovisual</h3>
+                    <p class="text-sm text-gray-400" data-i18n="pil_aud_d">Soluciones audiovisuales integrales con
+                        calidad cinematográfica.
+                        Resultados modernos y dinámicos.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="portafolio" class="relative bg-[#0b1720] py-20 scroll-trigger z-20">
+        <div class="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
+            <div class="md:col-span-1">
+                <h2 class="text-4xl font-bold mb-4 anime-item" data-i18n="port_title">Proyectos diseñados con visión y
+                    propósito.</h2>
+                <p class="text-gray-400 mb-6 anime-item" data-i18n="port_desc">Conoce las marcas que ya han confiado en
+                    nuestra propuesta para
+                    cobrar vida en el entorno digital.</p>
+                <a href="https://drive.google.com/file/d/1b7hysKhm-Zn26ExFJGLPHydlK8qh42wT/view?usp=sharing"
+                    target="_blank"
+                    class="text-accent2 font-semibold flex items-center gap-2 hover:underline anime-item"><span
+                        data-i18n="port_link">Ver
+                        proyectos</span> &rarr;</a>
+            </div>
+            <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="anime-item project-card cursor-pointer group" data-project-id="instituto">
+                    <div
+                        class="bg-gray-800 h-64 rounded-xl w-full mb-4 border border-gray-700 group-hover:border-accent2 group-hover:shadow-[0_0_20px_rgba(87,186,158,0.2)] group-hover:-translate-y-1 transition-all duration-300 flex items-center justify-center text-gray-600 overflow-hidden">
+                        <img src="img/ipdc-compliance-1.png" alt="Instituto Peruano de Compliance"
+                            class="w-full h-full object-cover object-top opacity-80 group-hover:opacity-100 transition-opacity duration-300">
+                    </div>
+                    <p class="text-xs text-accent2 font-bold mb-1 uppercase tracking-wider" data-i18n="port_tag1">Webs y
+                        Plataformas</p>
+                    <h4 class="font-bold text-lg group-hover:text-accent2 transition">Instituto Peruano de Compliance
+                    </h4>
+                </div>
+
+                <div class="anime-item project-card cursor-pointer group" data-project-id="terminal">
+                    <div
+                        class="bg-gray-800 h-64 rounded-xl w-full mb-4 border border-gray-700 group-hover:border-accent2 group-hover:shadow-[0_0_20px_rgba(87,186,158,0.2)] group-hover:-translate-y-1 transition-all duration-300 flex items-center justify-center text-gray-600 overflow-hidden">
+                        <img src="img/terminal-ss-5.png" alt="Terminal SS"
+                            class="w-full h-full object-cover object-top opacity-80 group-hover:opacity-100 transition-opacity duration-300">
+                    </div>
+                    <p class="text-xs text-accent2 font-bold mb-1 uppercase tracking-wider" data-i18n="port_tag2">
+                        Sistemas a Medida</p>
+                    <h4 class="font-bold text-lg group-hover:text-accent2 transition">Terminal SS</h4>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="planes" class="relative z-10 max-w-7xl mx-auto px-8 py-20 text-center scroll-trigger">
+        <h2 class="text-3xl md:text-4xl font-bold mb-8 anime-item" data-i18n="plan_main_title">Elige el ecosistema
+            perfecto para tu marca.</h2>
+
+        <div class="flex justify-center items-center gap-4 mb-10 anime-item">
+            <span id="label-normal" class="text-sm font-bold text-accent2 transition-colors duration-300"
+                data-i18n="plan_toggle_normal">Precio Normal</span>
+            <button id="discount-toggle"
+                class="relative w-14 h-7 bg-gray-700 rounded-full focus:outline-none transition-colors duration-300 shadow-inner cursor-pointer">
+                <div id="toggle-circle"
+                    class="absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-transform duration-300 shadow-md">
+                </div>
+            </button>
+            <span id="label-discount"
+                class="text-sm font-bold text-gray-500 transition-colors duration-300 flex items-center gap-2">
+                <span data-i18n="plan_toggle_save">Ahorra 15%</span> <span
+                    class="bg-accent2 text-deep text-[10px] px-2 py-0.5 rounded-full uppercase tracking-widest hidden md:inline-block"
+                    data-i18n="plan_toggle_months">Primeros
+                    3 meses</span>
+            </span>
+        </div>
+
+        <div
+            class="flex flex-col md:inline-flex md:flex-row gap-2 bg-[#0b1720] rounded-3xl md:rounded-full p-2 md:p-1 mb-12 border border-gray-700 anime-item w-full md:w-auto mx-auto max-w-sm md:max-w-none">
+            <button
+                class="tab-btn active px-6 py-2 rounded-t-2xl md:rounded-full text-sm font-semibold transition bg-accent2 text-deep"
+                data-target="tab-1" data-i18n="tab_1">Paquetes Integrales</button>
+            <button
+                class="tab-btn px-6 py-2 md:rounded-full text-sm font-semibold text-gray-400 hover:text-white transition"
+                data-target="tab-2" data-i18n="tab_2">Paquetes PLUS</button>
+            <button
+                class="tab-btn px-6 py-2 rounded-b-2xl md:rounded-full text-sm font-semibold text-gray-400 hover:text-white transition"
+                data-target="tab-3" data-i18n="tab_3">Solo Tecnología</button>
+        </div>
+
+        <div class="tab-content block" id="tab-1">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center text-left">
+                <div class="bg-card border border-gray-700 p-8 rounded-2xl tab-anim-item opacity-0">
+                    <h3 class="text-xl font-bold mb-2">Plan Básico</h3>
+                    <p class="text-3xl text-white font-bold mb-6">
+                        <span class="currency-symbol">S/</span> <span class="price-val" data-pen-normal="600"
+                            data-pen-discount="510" data-usd-normal="160" data-usd-discount="136">600</span> <span
+                            class="text-sm font-normal text-gray-400" data-i18n="plan_per_month">/ mes</span>
+                    </p>
+                    <ul class="space-y-4 mb-8 text-sm text-gray-300">
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Gestión de 2 redes sociales.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> 8 publicaciones mensuales.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Respuestas a comentarios.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Reporte mensual básico.</li>
+                    </ul>
+                    <a href="https://wa.me/51913330912?text=Hola%20estoy%20interesado%20en%20el%20plan%20Básico%20y%20quisiera%20concretar%20una%20reunión"
+                        target="_blank" data-plan-name="Básico"
+                        class="plan-btn w-full block text-center border border-gray-500 py-2 rounded-full hover:border-accent2 hover:text-accent2 transition"
+                        data-i18n="btn_contact">Contactar</a>
+                </div>
+                <div
+                    class="bg-card border border-accent2 p-10 rounded-2xl relative transform md:scale-105 shadow-[0_0_30px_rgba(87,186,158,0.15)] tab-anim-item opacity-0 z-10">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-accent2 text-deep text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wider"
+                        data-i18n="badge_recommended">
+                        Recomendado</div>
+                    <h3 class="text-xl font-bold mb-2">Plan Intermedio</h3>
+                    <p class="text-4xl text-accent2 font-bold mb-6">
+                        <span class="currency-symbol">S/</span> <span class="price-val" data-pen-normal="1200"
+                            data-pen-discount="1020" data-usd-normal="320" data-usd-discount="272">1200</span> <span
+                            class="text-sm font-normal text-gray-400" data-i18n="plan_per_month">/ mes</span>
+                    </p>
+                    <ul class="space-y-4 mb-8 text-sm text-gray-300">
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Gestión de 3 redes sociales.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> 12 posts + 4 videos cortos.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Gestión de pauta (Ads).</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Reporte analítico detallado.</li>
+                    </ul>
+                    <a href="https://wa.me/51913330912?text=Hola%20estoy%20interesado%20en%20el%20plan%20Intermedio%20y%20quisiera%20concretar%20una%20reunión"
+                        target="_blank" data-plan-name="Intermedio"
+                        class="plan-btn w-full block text-center bg-accent2 text-deep font-bold py-3 rounded-full hover:shadow-[0_0_15px_rgba(87,186,158,0.5)] transition"
+                        data-i18n="btn_hire">Contratar
+                        Ahora</a>
+                </div>
+                <div class="bg-card border border-gray-700 p-8 rounded-2xl tab-anim-item opacity-0">
+                    <h3 class="text-xl font-bold mb-2">Plan Avanzado</h3>
+                    <p class="text-3xl text-white font-bold mb-6">
+                        <span class="currency-symbol">S/</span> <span class="price-val" data-pen-normal="1800"
+                            data-pen-discount="1530" data-usd-normal="480" data-usd-discount="408">1800</span> <span
+                            class="text-sm font-normal text-gray-400" data-i18n="plan_per_month">/ mes</span>
+                    </p>
+                    <ul class="space-y-4 mb-8 text-sm text-gray-300">
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Estrategia 360° (20 contenidos).</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> 1 sesión audiovisual mensual.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Moderación intensiva.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Ads avanzado.</li>
+                    </ul>
+                    <a href="https://wa.me/51913330912?text=Hola%20estoy%20interesado%20en%20el%20plan%20Avanzado%20y%20quisiera%20concretar%20una%20reunión"
+                        target="_blank" data-plan-name="Avanzado"
+                        class="plan-btn w-full block text-center border border-gray-500 py-2 rounded-full hover:border-accent2 hover:text-accent2 transition"
+                        data-i18n="btn_contact">Contactar</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content hidden" id="tab-2">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center text-left">
+                <div class="bg-card border border-gray-700 p-8 rounded-2xl tab-anim-item opacity-0">
+                    <h3 class="text-xl font-bold mb-2">Básico Plus</h3>
+                    <p class="text-3xl text-white font-bold mb-6">
+                        <span class="currency-symbol">S/</span> <span class="price-val" data-pen-normal="900"
+                            data-pen-discount="765" data-usd-normal="240" data-usd-discount="204">900</span> <span
+                            class="text-sm font-normal text-gray-400" data-i18n="plan_per_month">/ mes</span>
+                    </p>
+                    <ul class="space-y-4 mb-8 text-sm text-gray-300">
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Todo el Plan Integral Básico.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Hosting y Dominio anual.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Mantenimiento preventivo web.</li>
+                    </ul>
+                    <a href="https://wa.me/51913330912?text=Hola%20estoy%20interesado%20en%20el%20plan%20Básico%20Plus%20y%20quisiera%20concretar%20una%20reunión"
+                        target="_blank" data-plan-name="Básico Plus"
+                        class="plan-btn w-full block text-center border border-gray-500 py-2 rounded-full hover:border-accent2 hover:text-accent2 transition"
+                        data-i18n="btn_contact">Contactar</a>
+                </div>
+                <div
+                    class="bg-card border border-accent2 p-10 rounded-2xl relative transform md:scale-105 shadow-[0_0_30px_rgba(87,186,158,0.15)] tab-anim-item opacity-0 z-10">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-accent2 text-deep text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wider"
+                        data-i18n="badge_recommended">
+                        Recomendado</div>
+                    <h3 class="text-xl font-bold mb-2">Intermedio Plus</h3>
+                    <p class="text-4xl text-accent2 font-bold mb-6">
+                        <span class="currency-symbol">S/</span> <span class="price-val" data-pen-normal="1800"
+                            data-pen-discount="1530" data-usd-normal="480" data-usd-discount="408">1800</span> <span
+                            class="text-sm font-normal text-gray-400" data-i18n="plan_per_month">/ mes</span>
+                    </p>
+                    <ul class="space-y-4 mb-8 text-sm text-gray-300">
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Todo el Plan Intermedio.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Soporte técnico web activo.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Actualización mensual web.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Backups semanales.</li>
+                    </ul>
+                    <a href="https://wa.me/51913330912?text=Hola%20estoy%20interesado%20en%20el%20plan%20Intermedio%20Plus%20y%20quisiera%20concretar%20una%20reunión"
+                        target="_blank" data-plan-name="Intermedio Plus"
+                        class="plan-btn w-full block text-center bg-accent2 text-deep font-bold py-3 rounded-full hover:shadow-[0_0_15px_rgba(87,186,158,0.5)] transition"
+                        data-i18n="btn_hire">Contratar
+                        Ahora</a>
+                </div>
+                <div class="bg-card border border-gray-700 p-8 rounded-2xl tab-anim-item opacity-0">
+                    <h3 class="text-xl font-bold mb-2">Avanzado Plus</h3>
+                    <p class="text-3xl text-white font-bold mb-6">
+                        <span class="currency-symbol">S/</span> <span class="price-val" data-pen-normal="2500"
+                            data-pen-discount="2125" data-usd-normal="670" data-usd-discount="570">2500</span> <span
+                            class="text-sm font-normal text-gray-400" data-i18n="plan_per_month">/ mes</span>
+                    </p>
+                    <ul class="space-y-4 mb-8 text-sm text-gray-300">
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Todo el Plan Avanzado.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Hosting de alto rendimiento.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Bolsa de 10 hrs de desarrollo.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Seguridad y optimización SEO.</li>
+                    </ul>
+                    <a href="https://wa.me/51913330912?text=Hola%20estoy%20interesado%20en%20el%20plan%20Avanzado%20Plus%20y%20quisiera%20concretar%20una%20reunión"
+                        target="_blank" data-plan-name="Avanzado Plus"
+                        class="plan-btn w-full block text-center border border-gray-500 py-2 rounded-full hover:border-accent2 hover:text-accent2 transition"
+                        data-i18n="btn_contact">Contactar</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content hidden" id="tab-3">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center text-left">
+                <div class="bg-card border border-gray-700 p-8 rounded-2xl tab-anim-item opacity-0">
+                    <h3 class="text-xl font-bold mb-2">Landing Page</h3>
+                    <p class="text-3xl text-white font-bold mb-6">
+                        <span class="currency-symbol">S/</span> <span class="price-val" data-pen-normal="900"
+                            data-pen-discount="765" data-usd-normal="240" data-usd-discount="204">900</span> <br><span
+                            class="text-sm font-normal text-gray-400" data-i18n="plan_single_payment">Pago
+                            único (3 meses de garantía)</span>
+                    </p>
+                    <ul class="space-y-4 mb-8 text-sm text-gray-300">
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Diseño One-Page responsivo.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Dominio y Hosting (1 año).</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Botón a WhatsApp.</li>
+                    </ul>
+                    <a href="https://wa.me/51913330912?text=Hola%20estoy%20interesado%20en%20el%20plan%20Landing%20Page%20y%20quisiera%20concretar%20una%20reunión"
+                        target="_blank" data-plan-name="Landing Page"
+                        class="plan-btn w-full block text-center border border-gray-500 py-2 rounded-full hover:border-accent2 hover:text-accent2 transition"
+                        data-i18n="btn_contact">Contactar</a>
+                </div>
+                <div
+                    class="bg-card border border-accent2 p-10 rounded-2xl relative transform md:scale-105 shadow-[0_0_30px_rgba(87,186,158,0.15)] tab-anim-item opacity-0 z-10">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-accent2 text-deep text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wider"
+                        data-i18n="badge_recommended">
+                        Recomendado</div>
+                    <h3 class="text-xl font-bold mb-2">Web Corporativa</h3>
+                    <p class="text-4xl text-accent2 font-bold mb-6">
+                        <span class="currency-symbol">S/</span> <span class="price-val" data-pen-normal="1500"
+                            data-pen-discount="1275" data-usd-normal="400" data-usd-discount="340">1500</span> <br><span
+                            class="text-sm font-normal text-gray-400" data-i18n="plan_single_payment">Pago
+                            único (3 meses de garantía)</span>
+                    </p>
+                    <ul class="space-y-4 mb-8 text-sm text-gray-300">
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Web multisección.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Panel autoadministrable.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Dominio y Hosting (1 año).</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> SEO y Google Analytics.</li>
+                    </ul>
+                    <a href="https://wa.me/51913330912?text=Hola%20estoy%20interesado%20en%20el%20plan%20Web%20Corporativa%20y%20quisiera%20concretar%20una%20reunión"
+                        target="_blank" data-plan-name="Web Corporativa"
+                        class="plan-btn w-full block text-center bg-accent2 text-deep font-bold py-3 rounded-full hover:shadow-[0_0_15px_rgba(87,186,158,0.5)] transition"
+                        data-i18n="btn_hire">Contratar
+                        Ahora</a>
+                </div>
+                <div class="bg-card border border-gray-700 p-8 rounded-2xl tab-anim-item opacity-0">
+                    <h3 class="text-xl font-bold mb-2">Sistemas a Medida</h3>
+                    <p class="text-3xl text-white font-bold mb-6">
+                        <span data-i18n="plan_quote">Cotizar</span> <br>
+                        <span class="text-sm font-normal text-gray-400" data-i18n="plan_quote_desc">Previa evaluación (3
+                            meses de garantía)</span>
+                    </p>
+                    <ul class="space-y-4 mb-8 text-sm text-gray-300">
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Software personalizado y apps.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Arquitectura escalable.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Integración de APIs.</li>
+                        <li class="flex gap-2"><span class="text-accent2">✓</span> Pasarelas de pago.</li>
+                    </ul>
+                    <a href="https://wa.me/51913330912?text=Hola%20estoy%20interesado%20en%20el%20plan%20Sistemas%20a%20Medida%20y%20quisiera%20concretar%20una%20reunión"
+                        target="_blank"
+                        class="w-full block text-center border border-gray-500 py-2 rounded-full hover:border-accent2 hover:text-accent2 transition"
+                        data-i18n="btn_contact">Contactar</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-20 border-t border-accent2/30 pt-16 scroll-trigger">
+            <div class="bg-[#122330] rounded-3xl p-8 md:p-12 border border-gray-800 text-left anime-item">
+                <h3 class="text-2xl font-bold text-white mb-2" data-i18n="design_title">Solo Diseño</h3>
+                <p class="text-gray-400 text-sm mb-8" data-i18n="design_desc">Servicios creativos de pago único para
+                    impulsar la imagen de tu
+                    negocio.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <a href="https://wa.me/51913330912?text=Hola%2C%20quiero%20mejorar%20el%20dise%C3%B1o%20de%20mi%20empresa%2C%20estoy%20interesado%20en%20contactar%20con%20ustedes"
+                        target="_blank"
+                        class="bg-card border border-gray-700/50 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-accent2 transition group cursor-pointer block">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-12 h-12 shrink-0 bg-gray-800 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
+                                <img src="img/diseno-icono-the-frog-diseno.svg" alt="Diseño de Logo"
+                                    class="w-[25px] h-[25px]">
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white mb-1" data-i18n="design_logo_t">Logo Básico</h4>
+                                <p class="text-xs text-gray-400 mb-2" data-i18n="design_logo_d">3 propuestas iniciales +
+                                    manual de uso básico.</p>
+                                <p class="text-accent2 font-bold"><span class="currency-symbol">S/</span> <span
+                                        class="price-val" data-pen-normal="350" data-pen-discount="350"
+                                        data-usd-normal="95" data-usd-discount="95">350</span></p>
+                            </div>
+                        </div>
+                        <div
+                            class="text-xs font-bold text-gray-500 group-hover:text-accent2 transition flex items-center gap-1 sm:self-end">
+                            <span data-i18n="design_consult">CONSULTAR</span> <span>&rarr;</span>
+                        </div>
+                    </a>
+
+                    <a href="https://wa.me/51913330912?text=Hola%2C%20quiero%20mejorar%20el%20dise%C3%B1o%20de%20mi%20empresa%2C%20estoy%20interesado%20en%20contactar%20con%20ustedes"
+                        target="_blank"
+                        class="bg-card border border-gray-700/50 p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-accent2 transition group cursor-pointer block">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-12 h-12 shrink-0 bg-gray-800 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
+                                <img src="img/diseno-icono-the-frog-identidad-visual.svg" alt="Identidad Visual"
+                                    class="w-[25px] h-[25px]">
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white mb-1" data-i18n="design_id_t">Identidad Visual
+                                    Completa</h4>
+                                <p class="text-xs text-gray-400 mb-2" data-i18n="design_id_d">Logo, Tipografías, Paleta,
+                                    Social Media Kit y
+                                    Papelería.</p>
+                                <p class="text-accent2 font-bold"><span class="currency-symbol">S/</span> <span
+                                        class="price-val" data-pen-normal="900" data-pen-discount="900"
+                                        data-usd-normal="240" data-usd-discount="240">900</span></p>
+                            </div>
+                        </div>
+                        <div
+                            class="text-xs font-bold text-gray-500 group-hover:text-accent2 transition flex items-center gap-1 sm:self-end">
+                            <span data-i18n="design_consult">CONSULTAR</span> <span>&rarr;</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="faq" class="relative bg-[#0b1720] py-20 scroll-trigger z-20">
+        <div class="max-w-3xl mx-auto px-8 text-center">
+            <h2 class="text-3xl font-bold mb-10 anime-item" data-i18n="faq_title">Preguntas Frecuentes (FAQ)</h2>
+            <div class="space-y-4 text-left">
+                <div class="bg-card border border-gray-700 rounded-xl overflow-hidden anime-item faq-container">
+                    <button
+                        class="faq-btn w-full px-6 py-4 flex justify-between items-center font-semibold hover:bg-gray-800 transition">
+                        <span data-i18n="faq_q1">¿Los planes web incluyen Hosting y Dominio?</span>
+                        <img src="img/flecha-preguntas.svg" alt="Desplegar"
+                            class="w-[13px] h-[13px] transition-transform duration-300 faq-icon">
+                    </button>
+                    <div class="faq-content h-0 overflow-hidden">
+                        <p class="px-6 pb-4 text-sm text-gray-400 leading-relaxed" data-i18n="faq_a1">Sí, nuestros
+                            servicios de desarrollo
+                            incluyen el primer año de Hosting y Dominio (.com o .pe).</p>
+                    </div>
+                </div>
+                <div class="bg-card border border-gray-700 rounded-xl overflow-hidden anime-item faq-container">
+                    <button
+                        class="faq-btn w-full px-6 py-4 flex justify-between items-center font-semibold hover:bg-gray-800 transition">
+                        <span data-i18n="faq_q2">¿Qué pasa después del primer año con mi web?</span>
+                        <img src="img/flecha-preguntas.svg" alt="Desplegar"
+                            class="w-[13px] h-[13px] transition-transform duration-300 faq-icon">
+                    </button>
+                    <div class="faq-content h-0 overflow-hidden">
+                        <p class="px-6 pb-4 text-sm text-gray-400 leading-relaxed" data-i18n="faq_a2">Solo deberás
+                            abonar la renovación
+                            anual del servicio de servidor (Hosting) y Dominio. Te avisaremos con anticipación.</p>
+                    </div>
+                </div>
+                <div class="bg-card border border-gray-700 rounded-xl overflow-hidden anime-item faq-container">
+                    <button
+                        class="faq-btn w-full px-6 py-4 flex justify-between items-center font-semibold hover:bg-gray-800 transition">
+                        <span data-i18n="faq_q3">¿El presupuesto de anuncios está incluido?</span>
+                        <img src="img/flecha-preguntas.svg" alt="Desplegar"
+                            class="w-[13px] h-[13px] transition-transform duration-300 faq-icon">
+                    </button>
+                    <div class="faq-content h-0 overflow-hidden">
+                        <p class="px-6 pb-4 text-sm text-gray-400 leading-relaxed" data-i18n="faq_a3">No. Cubrimos la
+                            gestión profesional.
+                            El presupuesto de inversión lo define el cliente directamente en la plataforma
+                            (Facebook/Google).</p>
+                    </div>
+                </div>
+                <div class="bg-card border border-gray-700 rounded-xl overflow-hidden anime-item faq-container">
+                    <button
+                        class="faq-btn w-full px-6 py-4 flex justify-between items-center font-semibold hover:bg-gray-800 transition">
+                        <span data-i18n="faq_q4">¿Puedo tener hosting y dominio gratis?</span>
+                        <img src="img/flecha-preguntas.svg" alt="Desplegar"
+                            class="w-[13px] h-[13px] transition-transform duration-300 faq-icon">
+                    </button>
+                    <div class="faq-content h-0 overflow-hidden">
+                        <p class="px-6 pb-4 text-sm text-gray-400 leading-relaxed" data-i18n="faq_a4">Sí, hay servicios
+                            como Canva o Github que te prestan un dominio y hosting por un tiempo indefinido, pero solo
+                            para páginas estáticas.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="project-modal" class="fixed inset-0 z-[100] hidden">
+        <div id="modal-overlay"
+            class="absolute inset-0 bg-[#060c11]/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 cursor-pointer">
+        </div>
+
+        <div class="absolute inset-0 flex items-center justify-center p-4 md:p-8 pointer-events-none">
+            <div id="modal-content"
+                class="bg-[#0f1b26] border border-gray-800 rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-10 pointer-events-auto transform scale-95 opacity-0 transition-all duration-300 shadow-2xl">
+
+                <div class="flex justify-between items-center mb-8">
+                    <div class="flex items-center gap-3">
+                        <div id="modal-icon-container"
+                            class="w-10 h-10 bg-accent2 rounded-full flex items-center justify-center text-deep"></div>
+                        <h3 id="modal-title" class="text-2xl font-bold text-accent2">Título Proyecto</h3>
+                    </div>
+                    <button id="close-modal"
+                        class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition focus:outline-none">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 items-stretch">
+                    <div id="modal-img-main"
+                        class="bg-gray-800 rounded-2xl w-full aspect-square border border-gray-700/50 overflow-hidden relative">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div id="modal-img-1"
+                            class="bg-gray-800 rounded-2xl aspect-square border border-gray-700/50 overflow-hidden relative">
+                        </div>
+                        <div id="modal-img-2"
+                            class="bg-gray-800 rounded-2xl aspect-square border border-gray-700/50 overflow-hidden relative">
+                        </div>
+                        <div id="modal-img-3"
+                            class="bg-gray-800 rounded-2xl aspect-square border border-gray-700/50 overflow-hidden relative">
+                        </div>
+                        <div id="modal-img-4"
+                            class="bg-gray-800 rounded-2xl aspect-square border border-gray-700/50 overflow-hidden relative">
+                        </div>
+                    </div>
+                </div>
+
+                <h2 id="modal-subtitle" class="text-2xl md:text-3xl font-bold text-white mb-4">Subtítulo del proyecto
+                </h2>
+                <p id="modal-description" class="text-gray-400 text-sm md:text-base leading-relaxed mb-8">
+                    Descripción detallada del proyecto.
+                </p>
+
+                <div class="flex flex-wrap gap-4">
+                    <a href="#" id="modal-website-btn" target="_blank"
+                        class="flex items-center gap-2 px-6 py-2 rounded-full border border-gray-700 hover:border-accent2 hover:text-accent2 transition text-xs font-bold uppercase tracking-wider text-gray-300">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9">
+                            </path>
+                        </svg>
+                        Website
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="relative bg-[#0b1720] border-t border-gray-800 pt-16 pb-8 z-30 scroll-trigger">
+        <div class="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+            <div class="md:col-span-2 anime-item">
+                <span class="text-white font-bold text-2xl flex items-center gap-3 mb-4">
+                    <img src="img/isotipo-the-frog.svg" alt="The Frog Logo" class="w-[17px] h-[17px]">
+                    TheFrog
+                </span>
+                <p class="text-sm text-gray-400 mb-6 max-w-sm leading-relaxed" data-i18n="footer_desc">
+                    ¿Listo para llevar tu marca al siguiente nivel? Escríbenos y hagamos que las cosas sucedan.
+                </p>
+                <div class="flex gap-4 items-center">
+                    <a href="https://www.facebook.com/thefrog.pe/" target="_blank"
+                        class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-accent2 hover:shadow-[0_0_15px_#57BA9E] transition-all duration-300 group">
+                        <img src="img/facebook-footer.svg" alt="Facebook"
+                            class="w-[18px] h-[18px] opacity-70 group-hover:opacity-100 transition">
+                    </a>
+                    <a href="https://www.instagram.com/the.frog.pe/" target="_blank"
+                        class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-accent2 hover:shadow-[0_0_15px_#57BA9E] transition-all duration-300 group">
+                        <img src="img/instagram-footer.svg" alt="Instagram"
+                            class="w-[18px] h-[18px] opacity-70 group-hover:opacity-100 transition">
+                    </a>
+                    <a href="https://www.tiktok.com/@the.frog.pe" target="_blank"
+                        class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-accent2 hover:shadow-[0_0_15px_#57BA9E] transition-all duration-300 group">
+                        <img src="img/tiktok-footer.svg" alt="TikTok"
+                            class="w-[18px] h-[18px] opacity-70 group-hover:opacity-100 transition">
+                    </a>
+                    <a href="https://wa.me/51913330912?text=Hola%20quisiera%20m%C3%A1s%20informaci%C3%B3n%20sobre%20sus%20servicios"
+                        target="_blank"
+                        class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-accent2 hover:shadow-[0_0_15px_#57BA9E] transition-all duration-300 group">
+                        <img src="img/whatsapp-footer.svg" alt="WhatsApp"
+                            class="w-[18px] h-[18px] opacity-70 group-hover:opacity-100 transition">
+                    </a>
+                </div>
+            </div>
+
+            <div class="text-sm anime-item">
+                <h4 class="font-bold mb-4 uppercase tracking-wider text-white" data-i18n="footer_contact">Contacto</h4>
+                <p class="text-gray-400 hover:text-white transition cursor-pointer mb-2">hola@thefrog.com</p>
+                <p class="text-gray-400 hover:text-white transition cursor-pointer">+51 913 330 912</p>
+            </div>
+
+            <div class="text-sm anime-item">
+                <h4 class="font-bold mb-4 uppercase tracking-wider text-white" data-i18n="footer_legal">Legal</h4>
+                <p class="text-gray-400 mb-2 hover:text-white cursor-pointer transition" data-i18n="footer_privacy">
+                    Política de Privacidad</p>
+                <p class="text-gray-400 hover:text-white cursor-pointer transition" data-i18n="footer_terms">Términos y
+                    Condiciones</p>
+            </div>
+        </div>
+
+        <div class="text-center text-xs text-gray-500 border-t border-gray-800 pt-8 mt-8" data-i18n="footer_rights">
+            © 2026 The Frog. Todos los derechos reservados.
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const iconMenu = document.getElementById('icon-menu');
+        const iconClose = document.getElementById('icon-close');
+
+        function toggleMobileMenu() {
+            mobileMenu.classList.toggle('-translate-y-full');
+            iconMenu.classList.toggle('hidden');
+            iconMenu.classList.toggle('block');
+            iconClose.classList.toggle('hidden');
+            iconClose.classList.toggle('block');
+            document.body.classList.toggle('overflow-hidden');
+        }
+
+        menuToggle.addEventListener('click', toggleMobileMenu);
+
+        const mobileLinks = mobileMenu.querySelectorAll('a');
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (!mobileMenu.classList.contains('-translate-y-full')) {
+                    toggleMobileMenu();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
